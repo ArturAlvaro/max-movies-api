@@ -1,11 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { GetAllParameters, Movies } from './movies.dto';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class MoviesService {
   private movie: Movies[] = [];
 
   create(movie: Movies) {
+    movie.id = uuid();
     this.movie.push(movie);
     return movie;
   }
