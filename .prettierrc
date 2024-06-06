@@ -1,0 +1,23 @@
+{
+  "tabWidth": 2,
+  "useTabs": false,
+  "singleQuote": true,
+  "semi": true,
+  "argsIgnorePattern": "^_",
+  "varsIgnorePattern": "^_",
+  "ignoreRestSiblings": true,
+  "printWidth": 100,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": "*.ts",
+      "options": {
+        "endOfLine": "lf"
+      }
+    }
+  ],
+  "spaceBeforeFunctionParen": true
+}
