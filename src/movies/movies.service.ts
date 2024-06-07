@@ -47,6 +47,21 @@ export class MoviesService {
   }
 
   async update(id: string, movie: Movies) {
+    if (movie.id) {
+      throw new BadRequestException('Campo id não é permitido!');
+    }
+
+    const movieInCache = await this.cacheManager.get<string>(`movieId:${id}`);
+
+    if (movieInCache) {
+      await this.movieRepository.update(id, movie);
+      await this.cacheManager.set(`movieId:${id}`, JSON.stringify(movie));
+      await this.cacheManager.set(`movieTitle:${movie.title}`, JSON.stringify(movie));
+
+      const search = await this.cacheManager.get<string>(`movieId:${id}`);
+      return JSON.parse(search as string);
+    }
+
     const foundMovie = await this.movieRepository.findOne({
       where: { id },
     });
@@ -56,12 +71,10 @@ export class MoviesService {
     }
 
     await this.movieRepository.update(id, movie);
+    await this.cacheManager.set(`movieId:${id}`, JSON.stringify(movie));
+    await this.cacheManager.set(`movieTitle:${movie.title}`, JSON.stringify(movie));
 
-    const updated = await this.movieRepository.findOne({
-      where: { id },
-    });
-
-    return updated;
+    return foundMovie;
   }
 
   async remove(id: string) {
