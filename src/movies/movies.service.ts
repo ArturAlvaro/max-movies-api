@@ -15,11 +15,9 @@ export class MoviesService {
   ) {}
 
   async create(movie: Movies) {
-    const checkMovie = await this.cacheManager.get(`movieTitle:${movie.title}`);
+    const checkMovie = await this.cacheManager.get<string>(`movieTitle:${movie.title}`);
 
     if (checkMovie) {
-      await this.cacheManager.set(`movieId:${movie.id}`, JSON.stringify(movie));
-      await this.cacheManager.set(`movieTitle:${movie.title}`, JSON.stringify(movie));
       return JSON.parse(checkMovie as string);
     }
 
