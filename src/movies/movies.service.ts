@@ -78,11 +78,18 @@ export class MoviesService {
   }
 
   async remove(id: string) {
+    const searchMovie = await this.movieRepository.findOne({
+      where: { id },
+    });
+
     const result = await this.movieRepository.delete(id);
 
-    if (!result.affected) {
+    if (!result.affected || !searchMovie) {
       throw new BadRequestException(`Filme ${id} não encontrado!`);
     }
+
+    await this.cacheManager.del(`movieId:${id}`);
+    await this.cacheManager.del(`movieTitle:${searchMovie.title}`);
   }
 
   async getAll(params: GetAllParameters): Promise<Movies[]> {
