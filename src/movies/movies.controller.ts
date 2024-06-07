@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { GetAllParameters, Movies } from './movies.dto';
+import { GetAllParameters, MovieRouteParameter, Movies } from './movies.dto';
 import { MoviesService } from './movies.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 
@@ -9,7 +9,7 @@ export class MoviesController {
   constructor(private readonly movieService: MoviesService) {}
 
   @Post('create')
-  create(@Body() movie: Movies) {
+  async create(@Body() movie: Movies) {
     return this.movieService.create(movie);
   }
 
@@ -18,18 +18,18 @@ export class MoviesController {
     return this.movieService.findById(id);
   }
 
-  @Put('update')
-  update(@Body() movie: Movies) {
-    return this.movieService.update(movie);
+  @Put('update/:id')
+  async update(@Body() movie: Movies, @Param() params: MovieRouteParameter) {
+    return this.movieService.update(params.id, movie);
   }
 
   @Delete('/:id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.movieService.remove(id);
   }
 
   @Get()
-  getAll(@Query() params: GetAllParameters): Movies[] {
+  async getAll(@Query() params: GetAllParameters): Promise<Movies[]> {
     return this.movieService.getAll(params);
   }
 }

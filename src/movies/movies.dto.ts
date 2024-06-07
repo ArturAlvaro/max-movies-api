@@ -49,3 +49,8 @@ export interface GetAllParameters {
   title: string;
   genre: string;
 }
+
+export class MovieRouteParameter {
+  @IsUUID()
+  id: string;
+}

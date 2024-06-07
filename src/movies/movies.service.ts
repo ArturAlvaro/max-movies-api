@@ -1,63 +1,91 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { GetAllParameters, Movies } from './movies.dto';
 import { v4 as uuid } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
+import { MovieEntity } from 'src/db/entities/movie.entity';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 
 @Injectable()
 export class MoviesService {
+  constructor(
+    @InjectRepository(MovieEntity)
+    private readonly movieRepository: Repository<MovieEntity>
+  ) {}
+
   private movie: Movies[] = [];
 
-  create(movie: Movies) {
-    movie.id = uuid();
-    this.movie.push(movie);
-    return movie;
-  }
-
-  findById(id: string): Movies {
-    const foundMovie = this.movie.filter((mv) => mv.id === id);
-
-    if (foundMovie.length) {
-      return foundMovie[0];
-    }
-
-    throw new NotFoundException(`Filme ${id} não encontrado!`);
-  }
-
-  update(movie: Movies) {
-    let movieIndex = this.movie.findIndex((m) => m.id === movie.id);
-
-    if (movieIndex >= 0) {
-      this.movie[movieIndex] = movie;
-      return movie;
-    }
-
-    throw new NotFoundException(`Filme ${movie.id}  não encontrado`);
-  }
-
-  remove(id: string) {
-    let movieIndex = this.movie.findIndex((m) => m.id === id);
-
-    if (movieIndex >= 0) {
-      this.movie.splice(movieIndex, 1);
-
-      return { message: 'Filme deletado com sucesso!' };
-    }
-
-    throw new NotFoundException(`Filme ${id} não encontrado!`);
-  }
-
-  getAll(params: GetAllParameters): Movies[] {
-    return this.movie.filter((m) => {
-      let mov = true;
-
-      if (params.title !== undefined && !m.title.includes(params.title)) {
-        mov = false;
-      }
-
-      if (params.genre !== undefined && !m.genre.includes(params.genre)) {
-        mov = false;
-      }
-
-      return mov;
+  async create(movie: Movies) {
+    const checkMovie = await this.movieRepository.findOne({
+      where: { title: movie.title },
     });
+
+    if (checkMovie) {
+      throw new ConflictException(`Filme ${movie.title} já está cadastrado!`);
+    }
+
+    const createMovie = await this.movieRepository.save(movie);
+
+    return createMovie;
+  }
+
+  async findById(id: string): Promise<Movies> {
+    const foundMovie = await this.movieRepository.findOne({
+      where: { id },
+    });
+
+    if (!foundMovie) {
+      throw new NotFoundException(`Filme ${id} não encontrado!`);
+    }
+
+    return foundMovie;
+  }
+
+  async update(id: string, movie: Movies) {
+    const foundMovie = await this.movieRepository.findOne({
+      where: { id },
+    });
+
+    if (!foundMovie) {
+      throw new BadRequestException(`Filme ${id} não encontrado!`);
+    }
+
+    await this.movieRepository.update(id, movie);
+
+    const updated = await this.movieRepository.findOne({
+      where: { id },
+    });
+
+    return updated;
+  }
+
+  async remove(id: string) {
+    const result = await this.movieRepository.delete(id);
+
+    if (!result.affected) {
+      throw new BadRequestException(`Filme ${id} não encontrado!`);
+    }
+  }
+
+  async getAll(params: GetAllParameters): Promise<Movies[]> {
+    const searchParams: FindOptionsWhere<MovieEntity> = {};
+
+    if (params.title) {
+      searchParams.title = Like(`%${params.title}%`);
+    }
+
+    if (params.genre) {
+      searchParams.genre = Like(`%${params.genre}%`);
+    }
+
+    const moviesFound = await this.movieRepository.find({
+      where: searchParams,
+    });
+
+    return moviesFound;
   }
 }
