@@ -5,10 +5,11 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { DbModule } from './db/db.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { RedisOptions } from './configs/app-options.constants';
 
 @Module({
   imports: [
-    CacheModule.register({ isGlobal: true }),
+    CacheModule.registerAsync(RedisOptions),
     ConfigModule.forRoot({ isGlobal: true }),
     MoviesModule,
     UsersModule,
