@@ -29,15 +29,21 @@ export class MoviesService {
   }
 
   async findById(id: string): Promise<Movies> {
-    const foundMovie = await this.movieRepository.findOne({
-      where: { id },
-    });
+    const movieInCache = await this.cacheManager.get<string>(`movieId:${id}`);
 
-    if (!foundMovie) {
-      throw new NotFoundException(`Filme ${id} não encontrado!`);
+    if (!movieInCache) {
+      const foundMovie = await this.movieRepository.findOne({
+        where: { id },
+      });
+
+      if (!foundMovie) {
+        throw new NotFoundException(`Filme ${id} não encontrado!`);
+      }
+
+      return foundMovie;
     }
 
-    return foundMovie;
+    return JSON.parse(movieInCache as string);
   }
 
   async update(id: string, movie: Movies) {
