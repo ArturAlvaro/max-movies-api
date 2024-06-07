@@ -1,34 +1,31 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { GetAllParameters, Movies } from './movies.dto';
-import { v4 as uuid } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovieEntity } from 'src/db/entities/movie.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class MoviesService {
   constructor(
     @InjectRepository(MovieEntity)
-    private readonly movieRepository: Repository<MovieEntity>
+    private readonly movieRepository: Repository<MovieEntity>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
-  private movie: Movies[] = [];
-
   async create(movie: Movies) {
-    const checkMovie = await this.movieRepository.findOne({
-      where: { title: movie.title },
-    });
+    const checkMovie = await this.cacheManager.get(`movieTitle:${movie.title}`);
 
     if (checkMovie) {
-      throw new ConflictException(`Filme ${movie.title} já está cadastrado!`);
+      await this.cacheManager.set(`movieId:${movie.id}`, JSON.stringify(movie));
+      await this.cacheManager.set(`movieTitle:${movie.title}`, JSON.stringify(movie));
+      return JSON.parse(checkMovie as string);
     }
 
     const createMovie = await this.movieRepository.save(movie);
+    await this.cacheManager.set(`movieId:${movie.id}`, JSON.stringify(movie));
+    await this.cacheManager.set(`movieTitle:${movie.title}`, JSON.stringify(movie));
 
     return createMovie;
   }
