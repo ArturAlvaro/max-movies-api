@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: max-movies-api-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: max-movies-api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
