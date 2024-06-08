@@ -54,8 +54,19 @@ export class MoviesService {
     const movieInCache = await this.cacheManager.get<string>(`movieId:${id}`);
 
     if (movieInCache) {
+      let oldMovieTitle: string;
+      oldMovieTitle = JSON.parse(movieInCache).title;
+
       await this.movieRepository.update(id, movie);
+
+      await this.cacheManager.del(`movieId:${id}`);
       await this.cacheManager.set(`movieId:${id}`, JSON.stringify(movie));
+
+      const cachedMovieByTitle = await this.cacheManager.get<string>(`movieTitle:${oldMovieTitle}`);
+      if (cachedMovieByTitle) {
+        await this.cacheManager.del(`movieTitle:${oldMovieTitle}`);
+      }
+
       await this.cacheManager.set(`movieTitle:${movie.title}`, JSON.stringify(movie));
 
       const search = await this.cacheManager.get<string>(`movieId:${id}`);
@@ -71,10 +82,25 @@ export class MoviesService {
     }
 
     await this.movieRepository.update(id, movie);
+
+    await this.cacheManager.del(`movieId:${id}`);
     await this.cacheManager.set(`movieId:${id}`, JSON.stringify(movie));
+
+    const cachedMovieByTitle = await this.cacheManager.get<string>(
+      `movieTitle:${foundMovie.title}`
+    );
+
+    if (cachedMovieByTitle) {
+      await this.cacheManager.del(`movieTitle:${foundMovie.title}`);
+    }
+
     await this.cacheManager.set(`movieTitle:${movie.title}`, JSON.stringify(movie));
 
-    return foundMovie;
+    const res = await this.movieRepository.findOne({
+      where: { id },
+    });
+
+    return res;
   }
 
   async remove(id: string) {
@@ -90,6 +116,8 @@ export class MoviesService {
 
     await this.cacheManager.del(`movieId:${id}`);
     await this.cacheManager.del(`movieTitle:${searchMovie.title}`);
+
+    return { message: 'Filme deletado com sucesso!' };
   }
 
   async getAll(params: GetAllParameters): Promise<Movies[]> {
