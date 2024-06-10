@@ -13,4 +13,11 @@ export class UserEntity {
 
   @Column({ type: 'boolean', default: true })
   active: boolean;
+
+  constructor(user?: Partial<UserEntity>) {
+    this.id = user?.id;
+    this.username = user?.username;
+    this.password = user?.password;
+    this.active = user?.active;
+  }
 }
