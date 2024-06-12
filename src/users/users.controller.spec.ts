@@ -3,8 +3,6 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { UserEntity } from 'src/db/entities/user.entity';
 import { v4 as uuid } from 'uuid';
-import { UserDto } from './users.dto';
-import { ConflictException, NotFoundException } from '@nestjs/common';
 
 const userEntity: UserEntity = {
   id: uuid(),
