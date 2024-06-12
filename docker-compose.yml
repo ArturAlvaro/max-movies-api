@@ -5,7 +5,7 @@ services:
     image: postgres:latest
     container_name: max-movies-api-db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_DB: max-movies-api
       POSTGRES_USER: postgres
