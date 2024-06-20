@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserEntity } from 'src/db/entities/user.entity';
+import { UserEntity } from '../db/entities/user.entity';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { v4 as uuid } from 'uuid';
 import { ConflictException } from '@nestjs/common';
