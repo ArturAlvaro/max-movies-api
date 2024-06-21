@@ -2,7 +2,7 @@ import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { UserDto } from './users.dto';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from 'src/db/entities/user.entity';
+import { UserEntity } from '../db/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';

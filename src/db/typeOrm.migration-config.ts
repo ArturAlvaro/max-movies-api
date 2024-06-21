@@ -4,7 +4,7 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { MovieEntity } from './entities/movie.entity';
 import { UserEntity } from './entities/user.entity';
 
-config();
+config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 
 const configService = new ConfigService();
 const dataSourceOptions: DataSourceOptions = {
@@ -18,5 +18,13 @@ const dataSourceOptions: DataSourceOptions = {
   migrations: [__dirname + '/migrations/*.ts'],
   synchronize: false,
 };
+
+const dataSource = new DataSource(dataSourceOptions);
+dataSource
+  .initialize()
+  .then(() => {
+    console.log(`Database ${configService.get<string>('DB_NAME')} connected`);
+  })
+  .catch((error) => console.error('Database connection error:', error));
 
 export default new DataSource(dataSourceOptions);

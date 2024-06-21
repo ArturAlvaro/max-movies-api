@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { GetAllParameters, Movies } from './movies.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MovieEntity } from 'src/db/entities/movie.entity';
+import { MovieEntity } from '../db/entities/movie.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';

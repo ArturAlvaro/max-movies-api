@@ -5,8 +5,57 @@ services:
     image: postgres:latest
     container_name: max-movies-api-db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_DB: max-movies-api
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345678
+    volumes:
+      - postgres_data:/var/lib/postgresql/postgres_data
+
+  test-postgres:
+    image: postgres:latest
+    container_name: test_max-movies-api
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: test_max-movies-api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
+
+  dev-postgres:
+    image: postgres:latest
+    container_name: dev_max-movies-api-db
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: dev_max-movies-api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+    volumes:
+      - dev_postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6380:6379"
+
+  test-redis:
+    image: redis:latest
+    container_name: test_redis
+    ports:
+      - "6381:6379"
+
+  dev-redis:
+    image: redis:latest
+    container_name: dev_redis
+    ports:
+      - "6382:6379"
+
+volumes:
+  postgres_data:
+  test_postgres_data:
+  dev_postgres_data:
