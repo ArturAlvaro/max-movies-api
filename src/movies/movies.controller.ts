@@ -2,13 +2,22 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } fro
 import { GetAllParameters, MovieRouteParameter, Movies } from './movies.dto';
 import { MoviesService } from './movies.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { createMoviesSwagger } from './swagger/create-movies.swagger';
 
 @UseGuards(AuthGuard)
 @Controller('movies')
+@ApiTags('movies')
 export class MoviesController {
   constructor(private readonly movieService: MoviesService) {}
 
   @Post('create')
+  @ApiOperation({ summary: 'Cria um catálogo de filme' })
+  @ApiResponse({
+    status: 201,
+    description: 'Filme registrado com sucesso',
+    type: createMoviesSwagger,
+  })
   async create(@Body() movie: Movies) {
     return this.movieService.create(movie);
   }
