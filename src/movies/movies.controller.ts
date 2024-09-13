@@ -23,6 +23,30 @@ export class MoviesController {
   }
 
   @Get('/:id')
+  @ApiOperation({ summary: 'Busca um filme por ID' })
+  @ApiResponse({ status: 200, description: 'Busca filme por ID', type: createMoviesSwagger })
+  @ApiResponse({
+    status: 400,
+    description: 'Filme não encontrado',
+    schema: {
+      example: {
+        message: 'O formato do ID é inválido.',
+        error: 'Bad Request',
+        statusCode: 400,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Filme não encontrado',
+    schema: {
+      example: {
+        message: 'Filme a27ebaa9-3153-4516-b520-e8b7d875213c não encontrado!',
+        error: 'Not Found',
+        statusCode: 404,
+      },
+    },
+  })
   findById(@Param('id') id: string) {
     return this.movieService.findById(id);
   }
