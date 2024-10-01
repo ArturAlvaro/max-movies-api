@@ -5,6 +5,7 @@ import { MovieEntity } from '../db/entities/movie.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class MoviesService {
@@ -29,6 +30,10 @@ export class MoviesService {
   }
 
   async findById(id: string): Promise<Movies> {
+    if (!isUUID(id)) {
+      throw new BadRequestException('O formato do ID é inválido.');
+    }
+
     const movieInCache = await this.cacheManager.get<string>(`movieId:${id}`);
 
     if (!movieInCache) {
